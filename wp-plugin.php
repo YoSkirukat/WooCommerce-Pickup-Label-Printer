@@ -45,7 +45,7 @@ function print_order_label_callback() {
     }
     
     // Create new PDF document
-    $pdf = new TCPDF( 'P', 'mm', array( 58, 40 ), true, 'UTF-8', false );
+    $pdf = new TCPDF( 'L', 'mm', array( 58, 40 ), true, 'UTF-8', false );
     
     // Set document information
     $pdf->SetCreator( PDF_CREATOR );
