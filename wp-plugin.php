@@ -115,4 +115,25 @@ function handle_print_label_order_action( $order ) {
     $url = wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' );
     wp_redirect( $url );
     exit;
+}
+
+// Add print label button to order edit page in the meta box
+add_action( 'add_meta_boxes', 'add_print_label_meta_box' );
+function add_print_label_meta_box() {
+    add_meta_box(
+        'print_label_meta_box',
+        __( 'Печать этикетки', 'woocommerce' ),
+        'render_print_label_meta_box',
+        'shop_order',
+        'side',
+        'high'
+    );
+}
+
+function render_print_label_meta_box( $post ) {
+    $order = wc_get_order( $post->ID );
+    if ( $order ) {
+        $url = wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' );
+        echo '<a href="' . esc_url( $url ) . '" class="button">' . __( 'Печать этикетки', 'woocommerce' ) . '</a>';
+    }
 } 
