@@ -16,17 +16,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 require_once plugin_dir_path( __FILE__ ) . 'tcpdf/tcpdf.php';
 
 // Add custom action link in order list
-add_filter( 'woocommerce_admin_order_actions', 'add_print_label_action', 10, 2 );
-function add_print_label_action( $actions, $order ) {
-    // Debug output to check if function is called
-    error_log( 'Order #' . $order->get_id() . ' - Adding label button for all orders.' );
-    $actions['print_label'] = array(
-        'url'    => wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' ),
-        'name'   => __( 'Этикетка', 'woocommerce' ),
-        'action' => 'print_label',
-    );
-    return $actions;
-}
+// add_filter( 'woocommerce_admin_order_actions', 'add_print_label_action', 10, 2 );
+// function add_print_label_action( $actions, $order ) {
+//     // Debug output to check if function is called
+//     error_log( 'Order #' . $order->get_id() . ' - Adding label button for all orders.' );
+//     $actions['print_label'] = array(
+//         'url'    => wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' ),
+//         'name'   => __( 'Этикетка', 'woocommerce' ),
+//         'action' => 'print_label',
+//     );
+//     return $actions;
+// }
 
 // Add AJAX handler for printing label
 add_action( 'wp_ajax_print_order_label', 'print_order_label_callback' );
@@ -64,13 +64,18 @@ function print_order_label_callback() {
     $pdf->AddPage();
     
     // Set font for order number
-    $pdf->SetFont( 'dejavusans', 'B', 20 );
-    $pdf->Cell( 48, 10, '#' . $order_id, 0, 1, 'C' );
+    $pdf->SetFont( 'dejavusans', 'B', 24 );
+    $pdf->Cell( 48, 10, $order_id, 0, 1, 'C' );
     
     // Set font for customer name
     $pdf->SetFont( 'dejavusans', '', 12 );
     $customer_name = $order->get_billing_first_name() . ' ' . $order->get_billing_last_name();
-    $pdf->Cell( 48, 10, $customer_name, 0, 1, 'C' );
+    $pdf->Cell( 48, 8, $customer_name, 0, 1, 'C' );
+    
+    // Set font for payment method
+    $pdf->SetFont( 'dejavusans', '', 9 );
+    $payment_method = $order->get_payment_method_title();
+    $pdf->MultiCell( 48, 6, $payment_method, 0, 'L', false, 1, '', '', true, 0, false, true, 12 );
     
     // Output the PDF
     $pdf->Output( 'order_label_' . $order_id . '.pdf', 'D' );
@@ -79,15 +84,15 @@ function print_order_label_callback() {
 }
 
 // Add CSS for custom action button
-add_action( 'admin_head', 'custom_order_actions_style' );
-function custom_order_actions_style() {
-    echo '<style>
-        .wc-action-button-print_label::after {
-            font-family: WooCommerce;
-            content: "\e010";
-        }
-    </style>';
-}
+// add_action( 'admin_head', 'custom_order_actions_style' );
+// function custom_order_actions_style() {
+//     echo '<style>
+//         .wc-action-button-print_label::after {
+//             font-family: WooCommerce;
+//             content: "\e010";
+//         }
+//     </style>';
+// }
 
 function my_custom_plugin_init() {
     // Initialization code here.
@@ -95,55 +100,82 @@ function my_custom_plugin_init() {
 add_action( 'init', 'my_custom_plugin_init' );
 
 // Add print label button to order edit page
-add_action( 'woocommerce_order_actions', 'add_print_label_order_action' );
-function add_print_label_order_action( $actions ) {
-    global $the_order;
-    if ( $the_order ) {
-        $actions['print_label'] = array(
-            'label'  => __( 'Печать этикетки', 'woocommerce' ),
-            'action' => 'print_label',
-            'url'    => wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $the_order->get_id() ), 'print-order-label' ),
-        );
-    }
-    return $actions;
-}
+// add_action( 'woocommerce_order_actions', 'add_print_label_order_action' );
+// function add_print_label_order_action( $actions ) {
+//     global $the_order;
+//     if ( $the_order ) {
+//         $actions['print_label'] = array(
+//             'label'  => __( 'Печать этикетки', 'woocommerce' ),
+//             'action' => 'print_label',
+//             'url'    => wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $the_order->get_id() ), 'print-order-label' ),
+//         );
+//     }
+//     return $actions;
+// }
 
 // Handle the button click on order edit page
-add_action( 'woocommerce_order_action_print_label', 'handle_print_label_order_action' );
-function handle_print_label_order_action( $order ) {
-    // Redirect to AJAX URL to trigger PDF download
-    $url = wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' );
-    wp_redirect( $url );
-    exit;
-}
+// add_action( 'woocommerce_order_action_print_label', 'handle_print_label_order_action' );
+// function handle_print_label_order_action( $order ) {
+//     // Redirect to AJAX URL to trigger PDF download
+//     $url = wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' );
+//     wp_redirect( $url );
+//     exit;
+// }
 
 // Add print label button to order edit page in the meta box
-add_action( 'add_meta_boxes', 'add_print_label_meta_box' );
-function add_print_label_meta_box() {
-    add_meta_box(
-        'print_label_meta_box',
-        __( 'Печать этикетки', 'woocommerce' ),
-        'render_print_label_meta_box',
-        'shop_order',
-        'side',
-        'high'
-    );
-}
+// add_action( 'add_meta_boxes', 'add_print_label_meta_box' );
+// function add_print_label_meta_box() {
+//     add_meta_box(
+//         'print_label_meta_box',
+//         __( 'Печать этикетки', 'woocommerce' ),
+//         'render_print_label_meta_box',
+//         'shop_order',
+//         'side',
+//         'high'
+//     );
+// }
+//
+// function render_print_label_meta_box( $post ) {
+//     $order = wc_get_order( $post->ID );
+//     $has_physical_product = false;
+//     if ( $order ) {
+//         foreach ( $order->get_items() as $item ) {
+//             $product = $item->get_product();
+//             if ( $product && ! $product->is_virtual() && ! $product->is_downloadable() ) {
+//                 $has_physical_product = true;
+//                 break;
+//             }
+//         }
+//         if ( $has_physical_product ) {
+//             $url = wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' );
+//             echo '<a href="' . esc_url( $url ) . '" class="button">' . __( 'Печать этикетки', 'woocommerce' ) . '</a>';
+//         }
+//     }
+// }
 
-function render_print_label_meta_box( $post ) {
-    $order = wc_get_order( $post->ID );
+// Add print label button to order edit page in the main content area
+add_action( 'woocommerce_admin_order_data_after_order_details', 'render_print_label_button_main_area' );
+function render_print_label_button_main_area( $order ) {
     $has_physical_product = false;
-    if ( $order ) {
-        foreach ( $order->get_items() as $item ) {
-            $product = $item->get_product();
-            if ( $product && ! $product->is_virtual() && ! $product->is_downloadable() ) {
-                $has_physical_product = true;
-                break;
-            }
-        }
-        if ( $has_physical_product ) {
-            $url = wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' );
-            echo '<a href="' . esc_url( $url ) . '" class="button">' . __( 'Печать этикетки', 'woocommerce' ) . '</a>';
+    foreach ( $order->get_items() as $item ) {
+        $product = $item->get_product();
+        if ( $product && ! $product->is_virtual() && ! $product->is_downloadable() ) {
+            $has_physical_product = true;
+            break;
         }
     }
+    if ( $has_physical_product ) {
+        $url = wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' );
+        echo '<p class="form-field form-field-wide"><a href="' . esc_url( $url ) . '" class="button alt">' . __( 'Печать этикетки', 'woocommerce' ) . '</a></p>';
+    }
+}
+
+// Add CSS for styling the print label button
+add_action( 'admin_head', 'style_print_label_button' );
+function style_print_label_button() {
+    echo '<style>
+        .form-field-wide a.button.alt {
+            margin-top: 25px;
+        }
+    </style>';
 } 
