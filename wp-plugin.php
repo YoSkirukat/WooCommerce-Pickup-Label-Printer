@@ -18,27 +18,13 @@ require_once plugin_dir_path( __FILE__ ) . 'tcpdf/tcpdf.php';
 // Add custom action link in order list
 add_filter( 'woocommerce_admin_order_actions', 'add_print_label_action', 10, 2 );
 function add_print_label_action( $actions, $order ) {
-    $shipping_methods = $order->get_shipping_methods();
-    $is_pickup = false;
-    foreach ( $shipping_methods as $method ) {
-        $method_id = $method->get_method_id();
-        if ( strpos( $method_id, 'local_pickup' ) !== false ) {
-            $is_pickup = true;
-            break;
-        }
-    }
-    // Debug output to check shipping method
-    error_log( 'Order #' . $order->get_id() . ' Shipping Method Check: ' . print_r( $shipping_methods, true ) );
-    if ( $is_pickup ) {
-        error_log( 'Order #' . $order->get_id() . ' is Pickup. Adding label button.' );
-        $actions['print_label'] = array(
-            'url'    => wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' ),
-            'name'   => __( 'Этикетка', 'woocommerce' ),
-            'action' => 'print_label',
-        );
-    } else {
-        error_log( 'Order #' . $order->get_id() . ' is NOT Pickup.' );
-    }
+    // Debug output to check if function is called
+    error_log( 'Order #' . $order->get_id() . ' - Adding label button for all orders.' );
+    $actions['print_label'] = array(
+        'url'    => wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' ),
+        'name'   => __( 'Этикетка', 'woocommerce' ),
+        'action' => 'print_label',
+    );
     return $actions;
 }
 
