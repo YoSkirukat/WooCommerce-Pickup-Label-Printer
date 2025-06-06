@@ -37,5 +37,4 @@ This plugin is licensed under GPL2. See the plugin header for more details.
 
 ## Author
 
-- Your Name
-- Website: https://yourwebsite.com 
+- Your Name: Ivan Malyshev

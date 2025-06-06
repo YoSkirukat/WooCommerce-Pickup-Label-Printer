@@ -37,5 +37,4 @@
 
 ## Автор
 
-- Ваше Имя
-- Веб-сайт: https://yourwebsite.com 
+- Ваше Имя: Ivan Malyshev

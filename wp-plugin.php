@@ -4,7 +4,7 @@
  * Description: A plugin to print labels for pickup orders in WooCommerce.
  * Version: 1.0.1
  * Author: Ivan Malyshev
- * Author URI: https://yourwebsite.com
+ * Author URI: 
  * License: GPL2
  */
 
