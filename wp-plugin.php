@@ -132,8 +132,18 @@ function add_print_label_meta_box() {
 
 function render_print_label_meta_box( $post ) {
     $order = wc_get_order( $post->ID );
+    $has_physical_product = false;
     if ( $order ) {
-        $url = wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' );
-        echo '<a href="' . esc_url( $url ) . '" class="button">' . __( 'Печать этикетки', 'woocommerce' ) . '</a>';
+        foreach ( $order->get_items() as $item ) {
+            $product = $item->get_product();
+            if ( $product && ! $product->is_virtual() && ! $product->is_downloadable() ) {
+                $has_physical_product = true;
+                break;
+            }
+        }
+        if ( $has_physical_product ) {
+            $url = wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' );
+            echo '<a href="' . esc_url( $url ) . '" class="button">' . __( 'Печать этикетки', 'woocommerce' ) . '</a>';
+        }
     }
 } 
