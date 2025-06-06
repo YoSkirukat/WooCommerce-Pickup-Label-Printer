@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce Pickup Label Printer
  * Description: A plugin to print labels for pickup orders in WooCommerce.
  * Version: 1.0.1
- * Author: Your Name
+ * Author: Ivan Malyshev
  * Author URI: https://yourwebsite.com
  * License: GPL2
  */
@@ -92,4 +92,27 @@ function custom_order_actions_style() {
 function my_custom_plugin_init() {
     // Initialization code here.
 }
-add_action( 'init', 'my_custom_plugin_init' ); 
+add_action( 'init', 'my_custom_plugin_init' );
+
+// Add print label button to order edit page
+add_action( 'woocommerce_order_actions', 'add_print_label_order_action' );
+function add_print_label_order_action( $actions ) {
+    global $the_order;
+    if ( $the_order ) {
+        $actions['print_label'] = array(
+            'label'  => __( 'Печать этикетки', 'woocommerce' ),
+            'action' => 'print_label',
+            'url'    => wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $the_order->get_id() ), 'print-order-label' ),
+        );
+    }
+    return $actions;
+}
+
+// Handle the button click on order edit page
+add_action( 'woocommerce_order_action_print_label', 'handle_print_label_order_action' );
+function handle_print_label_order_action( $order ) {
+    // Redirect to AJAX URL to trigger PDF download
+    $url = wp_nonce_url( admin_url( 'admin-ajax.php?action=print_order_label&order_id=' . $order->get_id() ), 'print-order-label' );
+    wp_redirect( $url );
+    exit;
+} 
